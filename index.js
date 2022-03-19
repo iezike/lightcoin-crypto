@@ -19,14 +19,17 @@ class Transaction  {
     this.amount = amount;
     this.account = account
   }
+  commit() {
+    this.account.balance += this.value; //finalize each instance of deposit
+  }
 
 }
 
 // Withdrawal Class
 class Withdrawal extends Transaction {
-  
-  commit() {
-    this.account.balance -= this.amount;  //finalize each instance of Withdrawal
+
+  get value() {
+    return (-1 * this.amount);
   }
 
 }
@@ -34,8 +37,8 @@ class Withdrawal extends Transaction {
 // Deposit Class
 class Deposit extends Transaction {
 
-  commit() {
-    this.account.balance += this.amount; //finalize each instance of deposit
+  get value() {
+    return this.amount
   }
 
 }
