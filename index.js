@@ -1,27 +1,40 @@
-let balance = 500.00;
-
 class Account {
 
-  constructor(username) {
-    this.username = username;
-    // Have the account balance start at $0 since that makes more sense.
-    this.balance = 0;
+  constructor() {
+    this.transactions = [];
+  }
+
+  get balance() {
+    let balance = 0;
+    for (let transaction of this.transactions) {
+      balance += transaction.value;
+    }
+    return balance;
+  }
+
+  addTransaction(transaction) {
+    this.transactions.push(transaction);
   }
 
 }
 
-const myAccount = new Account("snow-patrol");
+
 
 
 class Transaction  {
 
   constructor(amount, account) {
     this.amount = amount;
-    this.account = account
+    this.account = account;
   }
+
   commit() {
-    this.account.balance += this.value; //finalize each instance of deposit
+    if (!this.isAllowed()) return false;
+    this.time = new Date();
+    this.account.addTransaction(this);
+    return true;
   }
+
 
 }
 
@@ -29,7 +42,12 @@ class Transaction  {
 class Withdrawal extends Transaction {
 
   get value() {
-    return (-1 * this.amount);
+    return -this.amount;
+  }
+
+  isAllowed() {
+    // note how it has access to this.account b/c of parent
+    return (this.account.balance - this.amount >= 0);
   }
 
 }
@@ -38,28 +56,31 @@ class Withdrawal extends Transaction {
 class Deposit extends Transaction {
 
   get value() {
-    return this.amount
+    return this.amount;
+  }
+
+  isAllowed() {
+    // deposits always allowed thanks to capitalism.
+    return true;
   }
 
 }
 
 
-
+const myAccount = new Account("snow-patrol");
 // DRIVER CODE BELOW
 // We use the code below to "drive" the application logic above and make sure it's working as expected
+const t1 = new Deposit(120, myAccount);
+console.log('Commit result:', t1.commit());
+console.log('Account Balance: ', myAccount.balance);
 
-t1 = new Withdrawal(50.25, myAccount);
-t1.commit();
-console.log('Transaction 1:', t1);
+const t2 = new Withdrawal(50.25, myAccount);
+console.log('Commit result:', t2.commit());
+console.log('Account Balance: ', myAccount.balance);
 
-t2 = new Withdrawal(9.99, myAccount);
-t2.commit();
-console.log('Transaction 2:', t2);
+const t3 = new Withdrawal(45, myAccount);
+console.log('Commit result:', t3.commit());
+console.log('Account Balance: ', myAccount.balance);
 
-console.log('Balance:', myAccount.balance);
 
-t3 = new Deposit(120, myAccount);
-t3.commit();
-console.log('Trasaction 3:', t3);
-
-console.log('Balance:', myAccount.balance);
+console.log('Account Transaction History: ', myAccount.transactions);
